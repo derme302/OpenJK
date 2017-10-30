@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 //NPC_behavior.cpp
 /*
 FIXME - MCG:
@@ -135,13 +157,13 @@ void NPC_BSAdvanceFight (void)
 						VectorMA ( muzzle, distanceToEnemy, forward, hitspot);
 						VectorSubtract(hitspot, enemy_org, diff);
 						aim_off = VectorLength(diff);
-						if(aim_off > random() * max_aim_off)//FIXME: use aim value to allow poor aim?
+						if(aim_off > Q_flrand(0.0f, 1.0f) * max_aim_off)//FIXME: use aim value to allow poor aim?
 						{
 							attack_scale *= 0.75;
 							//see if where we're going to shoot is too far from his head
 							VectorSubtract(hitspot, enemy_head, diff);
 							aim_off = VectorLength(diff);
-							if(aim_off > random() * max_aim_off)
+							if(aim_off > Q_flrand(0.0f, 1.0f) * max_aim_off)
 							{
 								attack_ok = qfalse;
 							}
@@ -818,14 +840,10 @@ void NPC_BSJump (void)
 			xy *= 0.5;
 
 			assert(xy > 0);
+		}
 
-			VectorMA( p1, xy, dir, apex );
-			apex[2] += apexHeight;
-		}
-		else
-		{
-			VectorSet (apex, p1[0], p1[1], apexHeight);
-		}
+		VectorMA (p1, xy, dir, apex);
+		apex[2] += apexHeight;
 
 		VectorCopy(apex, NPCS.NPC->pos1);
 

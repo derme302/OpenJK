@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #include "b_local.h"
 #include "g_nav.h"
 #include "anims.h"
@@ -1037,9 +1059,9 @@ void NPC_BSGM_Attack( void )
 
 		VectorCopy( NPCS.NPC->enemy->r.currentOrigin, target );
 
-		target[0] += flrand( -5, 5 )+(crandom()*(6-NPCS.NPCInfo->currentAim)*2);
-		target[1] += flrand( -5, 5 )+(crandom()*(6-NPCS.NPCInfo->currentAim)*2);
-		target[2] += flrand( -5, 5 )+(crandom()*(6-NPCS.NPCInfo->currentAim)*2);
+		target[0] += flrand( -5, 5 )+(Q_flrand(-1.0f, 1.0f)*(6-NPCS.NPCInfo->currentAim)*2);
+		target[1] += flrand( -5, 5 )+(Q_flrand(-1.0f, 1.0f)*(6-NPCS.NPCInfo->currentAim)*2);
+		target[2] += flrand( -5, 5 )+(Q_flrand(-1.0f, 1.0f)*(6-NPCS.NPCInfo->currentAim)*2);
 
 		//Find the desired angles
 		clearshot = WP_LobFire( NPCS.NPC, muzzle, target, mins, maxs, MASK_SHOT|CONTENTS_LIGHTSABER,

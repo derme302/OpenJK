@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #include "g_local.h"
 #include "ghoul2/G2.h"
 #include "qcommon/q_shared.h"
@@ -216,7 +238,7 @@ void TurretG2Pain( gentity_t *self, gentity_t *attacker, int damage )
 
 	if ( attacker->client && attacker->client->ps.weapon == WP_DEMP2 )
 	{
-		self->attackDebounceTime = level.time + 2000 + random() * 500;
+		self->attackDebounceTime = level.time + 2000 + Q_flrand(0.0f, 1.0f) * 500;
 		self->painDebounceTime = self->attackDebounceTime;
 	}
 	if ( !self->enemy )
@@ -940,7 +962,7 @@ void turretG2_base_think( gentity_t *self )
 	else
 	{
 		// keep our enemy for a minimum of 2 seconds from now
-		self->bounceCount = level.time + 2000 + random() * 150;
+		self->bounceCount = level.time + 2000 + Q_flrand(0.0f, 1.0f) * 150;
 	}
 
 	turretG2_aim( self );
@@ -1148,7 +1170,7 @@ void finish_spawning_turretG2( gentity_t *base )
 		// How quickly to fire
 		if ( !base->wait )
 		{
-			base->wait = 1000;// + random() * 500;
+			base->wait = 1000;// + Q_flrand(0.0f, 1.0f) * 500;
 		}
 
 		if ( !base->splashDamage )
@@ -1206,7 +1228,7 @@ void finish_spawning_turretG2( gentity_t *base )
 		// How quickly to fire
 		if ( !base->wait )
 		{
-			base->wait = 150 + random() * 55;
+			base->wait = 150 + Q_flrand(0.0f, 1.0f) * 55;
 		}
 
 		if ( !base->splashDamage )

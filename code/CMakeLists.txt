@@ -1,4 +1,20 @@
-cmake_minimum_required(VERSION 2.8)
+#============================================================================
+# Copyright (C) 2013 - 2015, OpenJK contributors
+#
+# This file is part of the OpenJK source code.
+#
+# OpenJK is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+#============================================================================
 
 # Make sure the user is not executing this script directly
 if(NOT InOpenJK)
@@ -22,48 +38,62 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 	# Defines
 	set(SPEngineDefines ${SharedDefines} "_JK2EXE") # it's called JK2EXE but it really just means Singleplayer Exe
 
-	set(SPEngineIncludeDirectories ${SPEngineIncludeDirectories} ${OpenJKLibDir})
-	
-	#    Dependencies
-	
-	# OpenGL
-	# (mrw) TODO Is this actually required on windows? It is loaded at runtime, should not be linked?
-	find_package(OpenGL REQUIRED)
-	set(SPEngineIncludeDirectories ${SPEngineIncludeDirectories} ${OPENGL_INCLUDE_DIR})
-	set(SPEngineLibraries ${SPEngineLibraries} ${OPENGL_LIBRARIES})
+	set(SPEngineIncludeDirectories
+		${SPEngineIncludeDirectories}
+		${SharedDir}
+		${SPDir}
+		"${GSLIncludeDirectory}")
 
+	#    Dependencies
 	# OpenAL (is optionally included for Windows)
-	if(UseInternalOpenAL)
-		# There's a libs/OpenAL32.lib
-		# (mrw) TODO Is this actually required on windows? It is loaded at runtime, should not be linked?
-		find_library(OpenALLibrary NAMES OpenAL32 PATHS "${OpenJKLibDir}")
-		if(NOT OpenALLibrary)
-			message(FATAL_ERROR "UseInternalOpenAL enabled, but lib/OpenAL32.lib not found!")
-		endif(NOT OpenALLibrary)
-		set(SPEngineLibraries ${SPEngineLibraries} ${OpenALLibrary})
-	else(UseInternalOpenAL)
-		find_package(OpenAL REQUIRED)
-		set(SPEngineIncludeDirectories ${SPEngineIncludeDirectories} ${OPENAL_INCLUDE_DIR})
-		set(SPEngineLibraries ${SPEngineLibraries} ${OPENAL_LIBRARY})
-	endif(UseInternalOpenAL)
-	
-	# EAX is Windows-Only (right?)
-	if(WIN32)
+	if(MSVC AND NOT WIN64)
+		if(UseInternalOpenAL)
+			# There's a libs/OpenAL32.lib
+			# (mrw) TODO Is this actually required on windows? It is loaded at runtime, should not be linked?
+			find_library(OpenALLibrary NAMES OpenAL32 PATHS "${OpenJKLibDir}")
+			if(NOT OpenALLibrary)
+				message(FATAL_ERROR "UseInternalOpenAL enabled, but lib/OpenAL32.lib not found!")
+			endif(NOT OpenALLibrary)
+			set(SPEngineLibraries ${SPEngineLibraries} ${OpenALLibrary})
+		else(UseInternalOpenAL)
+			find_package(OpenAL REQUIRED)
+			set(SPEngineIncludeDirectories ${SPEngineIncludeDirectories} ${OPENAL_INCLUDE_DIR})
+			set(SPEngineLibraries ${SPEngineLibraries} ${OPENAL_LIBRARY})
+		endif(UseInternalOpenAL)
+
 		set(SPEngineEAXFiles
 			"${SPDir}/client/eax/eax.h"
 			"${SPDir}/client/eax/EaxMan.h"
 			)
 		source_group("eax" FILES ${SPEngineEAXFiles})
 		set(SPEngineFiles ${SPEngineFiles} ${SPEngineEAXFiles})
-	endif(WIN32)
+	endif()
 
-	if(NOT WIN32)
+	if(UseInternalSDL2)
+		if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+			set(SPEngineLibraries
+				${SPEngineLibraries}
+				${OpenJKLibDir}/SDL2/lib/x86/SDL2main.lib
+				${OpenJKLibDir}/SDL2/lib/x86/SDL2.lib
+				)
+		else()
+			set(SPEngineLibraries
+				${SPEngineLibraries}
+				${OpenJKLibDir}/SDL2/lib/x64/SDL2main.lib
+				${OpenJKLibDir}/SDL2/lib/x64/SDL2.lib
+				)
+		endif()
+
+		set(SPEngineIncludeDirectories
+			${SPEngineIncludeDirectories}
+			${OpenJKLibDir}/SDL2/include
+			)
+	else()
 		find_package(SDL2 REQUIRED)
 		set(SPEngineIncludeDirectories ${SPEngineIncludeDirectories} ${SDL2_INCLUDE_DIR})
 		set(SPEngineLibraries ${SPEngineLibraries} ${SDL2_LIBRARY})
-	endif(NOT WIN32)
+	endif()
 
-	
 	#    Source Files
 
 	# Client files
@@ -104,40 +134,28 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 
 	# qcommon files
 	set(SPEngineCommonFiles
-		"${SPDir}/qcommon/cm_draw.cpp"
 		"${SPDir}/qcommon/cm_load.cpp"
 		"${SPDir}/qcommon/cm_patch.cpp"
 		"${SPDir}/qcommon/cm_polylib.cpp"
-		"${SPDir}/qcommon/cm_randomterrain.cpp"
-		"${SPDir}/qcommon/cm_shader.cpp"
-		"${SPDir}/qcommon/cm_terrain.cpp"
-		"${SPDir}/qcommon/cm_terrainmap.cpp"
 		"${SPDir}/qcommon/cm_test.cpp"
 		"${SPDir}/qcommon/cm_trace.cpp"
-		"${SPDir}/qcommon/cm_draw.h"
-		"${SPDir}/qcommon/cm_landscape.h"
 		"${SPDir}/qcommon/cm_local.h"
 		"${SPDir}/qcommon/cm_patch.h"
 		"${SPDir}/qcommon/cm_polylib.h"
 		"${SPDir}/qcommon/cm_public.h"
-		"${SPDir}/qcommon/cm_randomterrain.h"
-		"${SPDir}/qcommon/cm_terrainmap.h"
 
 		"${SPDir}/qcommon/cmd.cpp"
 		"${SPDir}/qcommon/common.cpp"
 		"${SPDir}/qcommon/cvar.cpp"
 
-		"${SPDir}/qcommon/files_common.cpp"
-		"${SPDir}/qcommon/files_pc.cpp"
+		"${SPDir}/qcommon/files.cpp"
 
 		"${SPDir}/qcommon/md4.cpp"
 		"${SPDir}/qcommon/msg.cpp"
 		"${SPDir}/qcommon/net_chan.cpp"
 
-		"${SPDir}/qcommon/q_math.cpp"
 		"${SPDir}/qcommon/q_shared.cpp"
 		"${SPDir}/qcommon/q_shared.h"
-		"${SPDir}/qcommon/q_platform.h"
 
 		"${SPDir}/qcommon/sstring.h"
 		"${SPDir}/qcommon/stringed_ingame.cpp"
@@ -147,22 +165,34 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 
 		"${SPDir}/qcommon/strip.cpp"
 		"${SPDir}/qcommon/persistence.cpp"
-		"${SPDir}/qcommon/unzip.cpp"
-		"${SPDir}/qcommon/unzip.h"
-		"${OpenJKLibDir}/zlib/ioapi.c"
-		"${OpenJKLibDir}/zlib/ioapi.h"
 		"${SPDir}/qcommon/tags.h"
 		"${SPDir}/qcommon/z_memman_pc.cpp"
-		"${SPDir}/qcommon/chash.h"
 		"${SPDir}/qcommon/qfiles.h"
-		"${SPDir}/qcommon/files.h"
 		"${SPDir}/qcommon/qcommon.h"
 		"${SPDir}/qcommon/stv_version.h"
 		"${SPDir}/qcommon/timing.h"
 		"${SPDir}/qcommon/MiniHeap.h"
+
+		"${SPDir}/qcommon/ojk_i_saved_game.h"
+		"${SPDir}/qcommon/ojk_saved_game.h"
+		"${SPDir}/qcommon/ojk_saved_game.cpp"
+		"${SPDir}/qcommon/ojk_saved_game_helper.h"
+		"${SPDir}/qcommon/ojk_saved_game_helper_fwd.h"
+		"${SPDir}/qcommon/ojk_scope_guard.h"
+
+		${SharedCommonFiles}
 		)
 	source_group("common" FILES ${SPEngineCommonFiles})
 	set(SPEngineFiles ${SPEngineFiles} ${SPEngineCommonFiles})
+	
+	set(SPEngineCommonSafeFiles
+		"${SharedDir}/qcommon/safe/files.cpp"
+		"${SharedDir}/qcommon/safe/files.h"
+		${SharedCommonSafeFiles}
+		"${SPDir}/qcommon/safe/memory.h"
+		)
+	source_group("common/safe" FILES ${SPEngineCommonSafeFiles})
+	set(SPEngineFiles ${SPEngineFiles} ${SPEngineCommonSafeFiles})
 
 
 	# Server files
@@ -251,7 +281,8 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 		"${SPDir}/rd-common/tr_public.h"
 		"${SPDir}/rd-common/tr_types.h"
 		)
-
+	source_group("renderer" FILES ${SPEngineRendererFiles})
+	set(SPEngineFiles ${SPEngineFiles} ${SPEngineRendererFiles})
 
 	# UI files
 	set(SPEngineUIFiles
@@ -271,42 +302,10 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 	set(SPEngineFiles ${SPEngineFiles} ${SPEngineUIFiles})
 
 
-	# RMG files
-	set(SPEngineRMGFiles
-		"${SPDir}/RMG/RM_Area.cpp"
-		"${SPDir}/RMG/RM_Instance.cpp"
-		"${SPDir}/RMG/RM_Instance_BSP.cpp"
-		"${SPDir}/RMG/RM_Instance_Group.cpp"
-		"${SPDir}/RMG/RM_Instance_Random.cpp"
-		"${SPDir}/RMG/RM_Instance_Void.cpp"
-		"${SPDir}/RMG/RM_InstanceFile.cpp"
-		"${SPDir}/RMG/RM_Manager.cpp"
-		"${SPDir}/RMG/RM_Mission.cpp"
-		"${SPDir}/RMG/RM_Objective.cpp"
-		"${SPDir}/RMG/RM_Path.cpp"
-		"${SPDir}/RMG/RM_Terrain.cpp"
-		"${SPDir}/RMG/RM_Area.h"
-		"${SPDir}/RMG/RM_Headers.h"
-		"${SPDir}/RMG/RM_Instance.h"
-		"${SPDir}/RMG/RM_Instance_BSP.h"
-		"${SPDir}/RMG/RM_Instance_Group.h"
-		"${SPDir}/RMG/RM_Instance_Random.h"
-		"${SPDir}/RMG/RM_Instance_Void.h"
-		"${SPDir}/RMG/RM_InstanceFile.h"
-		"${SPDir}/RMG/RM_Manager.h"
-		"${SPDir}/RMG/RM_Mission.h"
-		"${SPDir}/RMG/RM_Objective.h"
-		"${SPDir}/RMG/RM_Path.h"
-		"${SPDir}/RMG/RM_Terrain.h"
-		)
-	source_group("rmg" FILES ${SPEngineRMGFiles})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineRMGFiles})
-
-
 	# Ghoul2 files
 	set(SPEngineGhoul2Files
 		"${SPDir}/ghoul2/G2.h"
-		"${SPDir}/ghoul2/ghoul2_gore.h"	
+		"${SPDir}/ghoul2/ghoul2_gore.h"
 		)
 	source_group("ghoul2" FILES ${SPEngineGhoul2Files})
 	set(SPEngineFiles ${SPEngineFiles} ${SPEngineGhoul2Files})
@@ -320,80 +319,108 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 	source_group("cgame" FILES ${SPEngineCGameFiles})
 	set(SPEngineFiles ${SPEngineFiles} ${SPEngineCGameFiles})
 
-
-	# 
 	if(WIN32)
 		set(SPEngineWin32Files
-			"${SPDir}/win32/afxres.h"
-			"${SPDir}/win32/win_input.cpp"
-			"${SPDir}/win32/win_main.cpp"
-			"${SPDir}/win32/win_shared.cpp"
-			"${SPDir}/win32/win_snd.cpp"
-			"${SPDir}/win32/win_syscon.cpp"
-			"${SPDir}/win32/win_wndproc.cpp"
-			"${SPDir}/win32/win_local.h"
-			"${SPDir}/win32/AutoVersion.h"
 			"${SPDir}/win32/resource.h"
-			"${SPDir}/win32/glw_win.h"
 			"${SPDir}/win32/winquake.rc"
 			)
 		source_group("win32" FILES ${SPEngineWin32Files})
 		set(SPEngineFiles ${SPEngineFiles} ${SPEngineWin32Files})
-	else(WIN32)
+	endif()
+
+	set(SPEngineSysFiles
+		"${SharedDir}/sys/sys_main.cpp"
+		"${SharedDir}/sys/sys_event.cpp"
+		"${SharedDir}/sys/sys_local.h"
+		"${SharedDir}/sys/sys_public.h"
+		"${SharedDir}/sys/sys_loadlib.h"
+		"${SharedDir}/sys/con_local.h"
+		"${SharedDir}/sys/con_log.cpp"
+		"${SharedDir}/sdl/sdl_qgl.h"
+		"${SharedDir}/sdl/sdl_sound.cpp"
+		"${SharedDir}/sdl/sdl_input.cpp"
+		"${SharedDir}/sdl/sdl_window.cpp"
+		"${SharedDir}/sdl/sdl_icon.h"
+		)
+
+	if(WIN32)
 		set(SPEngineSysFiles
-			"${SPDir}/sys/sys_main.cpp"
-			"${SPDir}/sys/sys_unix.cpp"
-			"${SPDir}/sys/sys_local.h"
-			"${SPDir}/sys/sys_loadlib.h"
-			"${SPDir}/sdl/sdl_qgl.h"
-			"${SPDir}/sdl/sdl_snd.cpp"
-			"${SPDir}/sdl/sdl_input.cpp"
+			${SPEngineSysFiles}
+			"${SharedDir}/sys/sys_win32.cpp"
+			"${SharedDir}/sys/con_passive.cpp"
 			)
-		source_group("sys" FILES ${SPEngineSysFiles})
-		set(SPEngineFiles ${SPEngineFiles} ${SPEngineSysFiles})
-	endif(WIN32)
+	else()
+		set(SPEngineSysFiles
+			${SPEngineSysFiles}
+			"${SharedDir}/sys/sys_unix.cpp"
+			"${SharedDir}/sys/con_tty.cpp"
+			)
+	endif()
 
-	if(UseInternalZlib)
-		# zlib.lib is included for windows
-		find_library(ZlibLibrary NAMES zlib PATHS ${OpenJKLibDir})
-		if(NOT ZlibLibrary)
-			message(FATAL_ERROR "UseInternalZlib enabled, but lib/zlib.lib not found!")
-		endif(NOT ZlibLibrary)
-		set(SPEngineLibraries ${SPEngineLibraries} ${ZlibLibrary})
-	else(UseInternalZlib)
-		find_package(ZLIB REQUIRED)
-		set(SPEngineIncludeDirectories ${SPEngineIncludeDirectories} ${ZLIB_INCLUDE_DIR})
-		set(SPEngineLibraries ${SPEngineLibraries} ${ZLIB_LIBRARY})
-	endif(UseInternalZlib)
+	source_group("sys" FILES ${SPEngineSysFiles})
+	set(SPEngineFiles ${SPEngineFiles} ${SPEngineSysFiles})
 
-	if(MakeApplicationBundles)
-		set(MACOSX_BUNDLE_ICON_FILE OpenJK.icns)
-		set_source_files_properties(${SPDir}/macosx/OpenJK.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-		set(SPEngineFiles ${SPEngineFiles} ${SPDir}/macosx/OpenJK.icns)
-	endif(MakeApplicationBundles)
-	
+    # Transparently use our bundled minizip.
+    list(APPEND SPEngineIncludeDirectories ${MINIZIP_INCLUDE_DIRS})
+    list(APPEND SPEngineLibraries          ${MINIZIP_LIBRARIES})
+
+    # Transparently use either bundled or system zlib.
+    list(APPEND SPEngineIncludeDirectories ${ZLIB_INCLUDE_DIR})
+    list(APPEND SPEngineLibraries          ${ZLIB_LIBRARIES})
+
 	# project macro so we can invoke it twice: for jk2 and for ja
-	function(add_sp_project ProjectName Label)
+	function(add_sp_project ProjectName Label SPDirName InstallDir Component)
+		if(MakeApplicationBundles)
+			set_source_files_properties(${SPDirName}/macosx/OpenJK.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+			set(SPEngineFiles ${SPEngineFiles} ${SPDirName}/macosx/OpenJK.icns)
+			set_source_files_properties(${SPDirName}/macosx/English.lproj/InfoPlist.strings PROPERTIES MACOSX_PACKAGE_LOCATION Resources/English.lproj)
+			set(SPEngineFiles ${SPEngineFiles} ${SPDirName}/macosx/English.lproj/InfoPlist.strings)
+		endif(MakeApplicationBundles)
+
 		if(WIN32)
 			add_executable(${ProjectName} WIN32 ${SPEngineFiles})
+			if(UseInternalSDL2)
+				if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+					set(SPEngineExtraInstallFiles
+						${OpenJKLibDir}/SDL2/bin/x86/SDL2.dll
+						)
+				else()
+					set(SPEngineExtraInstallFiles
+						${OpenJKLibDir}/SDL2/bin/x64/SDL2.dll
+						)
+				endif()
+			endif()
 		else(WIN32)
 			if(MakeApplicationBundles)
 				add_executable(${ProjectName} MACOSX_BUNDLE ${SPEngineFiles})
+				set_target_properties(${ProjectName} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${SPDirName}/macosx/OpenJKInfo.plist")
 			else(MakeApplicationBundles)
 				add_executable(${ProjectName} ${SPEngineFiles})
 			endif(MakeApplicationBundles)
 		endif(WIN32)
 
 		if(MakeApplicationBundles)
-			install(TARGETS ${ProjectName} BUNDLE DESTINATION ".")
+			install(TARGETS ${ProjectName}
+				BUNDLE
+				DESTINATION ${InstallDir}
+				COMPONENT ${Component})
 		else(MakeApplicationBundles)
-			install(TARGETS ${ProjectName} RUNTIME DESTINATION ".")
+			install(TARGETS ${ProjectName}
+				RUNTIME
+				DESTINATION ${InstallDir}
+				COMPONENT ${Component})
+			if(SPEngineExtraInstallFiles)
+				install(FILES ${SPEngineExtraInstallFiles}
+					DESTINATION ${InstallDir}
+					COMPONENT ${Component})
+			endif()
 		endif(MakeApplicationBundles)
 
-		set_target_properties(${ProjectName} PROPERTIES COMPILE_DEFINITIONS_RELWITHDEBINFO "${SPEngineDefines};${ReleaseDefines}")
-		set_target_properties(${ProjectName} PROPERTIES COMPILE_DEFINITIONS_MINSIZEREL "${SPEngineDefines};${ReleaseDefines}")
-		set_target_properties(${ProjectName} PROPERTIES COMPILE_DEFINITIONS_RELEASE "${SPEngineDefines};${ReleaseDefines}")
-		set_target_properties(${ProjectName} PROPERTIES COMPILE_DEFINITIONS_DEBUG "${SPEngineDefines};${DebugDefines}")
+		set_target_properties(${ProjectName} PROPERTIES COMPILE_DEFINITIONS "${SPEngineDefines}")
+
+		# Hide symbols not explicitly marked public.
+		set_property(TARGET ${ProjectName} APPEND PROPERTY COMPILE_OPTIONS ${OPENJK_VISIBILITY_FLAGS})
+
 		set_target_properties(${ProjectName} PROPERTIES INCLUDE_DIRECTORIES "${SPEngineIncludeDirectories}")
 		set_target_properties(${ProjectName} PROPERTIES PROJECT_LABEL ${Label})
 		if(SPEngineLibraries)
@@ -401,11 +428,11 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 		endif(SPEngineLibraries)
 	endfunction(add_sp_project)
 	if(BuildSPEngine)
-		add_sp_project(${SPEngine} "SP Client")
+		add_sp_project(${SPEngine} "SP Client" ${SPDir} ${JKAInstallDir} ${JKASPClientComponent})
 	endif(BuildSPEngine)
 	if(BuildJK2SPEngine)
 		set(SPEngineDefines ${SPEngineDefines} "JK2_MODE")
-		add_sp_project(${JK2SPEngine} "JK2 SP Client")
+		add_sp_project(${JK2SPEngine} "JK2 SP Client" ${JK2SPDir} ${JK2InstallDir} ${JK2SPClientComponent})
 	endif(BuildJK2SPEngine)
 
 endif(BuildSPEngine OR BuildJK2SPEngine)

@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // BG_PAnimate.c
 // game and cgame, NOT ui
 
@@ -11,7 +33,7 @@
 	#include "g_local.h"
 #elif _CGAME
 	#include "cgame/cg_local.h"
-#elif _UI
+#elif UI_BUILD
 	#include "ui/ui_local.h"
 #endif
 
@@ -1826,7 +1848,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 
 		token = COM_Parse( text_p );
 		eventType = (animEventType_t)GetIDForString(animEventTypeTable, token);
-		if ( eventType == AEV_NONE || eventType == -1 )
+		if ( eventType == AEV_NONE || eventType == (animEventType_t)-1 )
 		{//Unrecognized ANIM EVENT TYOE, or we're skipping this line, keep going till you get a good one
 			//Com_Printf(S_COLOR_YELLOW"WARNING: Unknown token %s in animEvent file %s\n", token, aeb_filename );
 			continue;
@@ -2535,9 +2557,6 @@ static void BG_StartLegsAnim( playerState_t *ps, int anim )
 {
 	if ( ps->pm_type >= PM_DEAD )
 	{
-		assert(!BG_InDeathAnim(anim));
-		//please let me know if this assert fires on you (ideally before you close/ignore it) -rww
-
 		//vehicles are allowed to do this.. IF it's a vehicle death anim
 		if (ps->clientNum < MAX_CLIENTS || anim != BOTH_VT_DEATH1)
 		{
@@ -2611,8 +2630,6 @@ void BG_StartTorsoAnim( playerState_t *ps, int anim )
 {
 	if ( ps->pm_type >= PM_DEAD )
 	{
-		assert(!BG_InDeathAnim(anim));
-		//please let me know if this assert fires on you (ideally before you close/ignore it) -rww
 		return;
 	}
 

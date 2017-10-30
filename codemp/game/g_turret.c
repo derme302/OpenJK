@@ -1,5 +1,26 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #include "g_local.h"
 #include "qcommon/q_shared.h"
 
@@ -22,7 +43,7 @@ void TurretPain( gentity_t *self, gentity_t *attacker, int damage )
 
 	if ( attacker->client && attacker->client->ps.weapon == WP_DEMP2 )
 	{
-		self->attackDebounceTime = level.time + 800 + random() * 500;
+		self->attackDebounceTime = level.time + 800 + Q_flrand(0.0f, 1.0f) * 500;
 		self->painDebounceTime = self->attackDebounceTime;
 	}
 	if ( !self->enemy )
@@ -603,7 +624,7 @@ void turret_base_think( gentity_t *self )
 	else
 	{
 		// keep our enemy for a minimum of 2 seconds from now
-		self->bounceCount = level.time + 2000 + random() * 150;
+		self->bounceCount = level.time + 2000 + Q_flrand(0.0f, 1.0f) * 150;
 	}
 
 	turret_aim( self );
@@ -753,7 +774,7 @@ qboolean turret_base_spawn_top( gentity_t *base )
 	top->speed = 0;
 
 	// this is a random time offset for the no-enemy-search-around-mode
-	top->count = random() * 9000;
+	top->count = Q_flrand(0.0f, 1.0f) * 9000;
 
 	if ( !base->health )
 	{
@@ -808,7 +829,7 @@ qboolean turret_base_spawn_top( gentity_t *base )
 	// How quickly to fire
 	if ( !base->wait )
 	{
-		base->wait = 300 + random() * 55;
+		base->wait = 300 + Q_flrand(0.0f, 1.0f) * 55;
 	}
 	top->wait = base->wait;
 

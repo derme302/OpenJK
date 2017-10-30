@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 //
 // NPC_move.cpp
 //
@@ -73,7 +95,7 @@ NPC_CheckCombatMove
 -------------------------
 */
 
-QINLINE qboolean NPC_CheckCombatMove( void )
+static QINLINE qboolean NPC_CheckCombatMove( void )
 {
 	//return NPCInfo->combatMove;
 	if ( ( NPCS.NPCInfo->goalEntity && NPCS.NPC->enemy && NPCS.NPCInfo->goalEntity == NPCS.NPC->enemy ) || ( NPCS.NPCInfo->combatMove ) )
@@ -121,7 +143,7 @@ NPC_GetMoveInformation
 -------------------------
 */
 
-QINLINE qboolean NPC_GetMoveInformation( vec3_t dir, float *distance )
+static QINLINE qboolean NPC_GetMoveInformation( vec3_t dir, float *distance )
 {
 	//NOTENOTE: Use path stacks!
 

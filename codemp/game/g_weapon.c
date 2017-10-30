@@ -1,5 +1,26 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // g_weapon.c
 // perform the server side effects of a weapon firing
 
@@ -508,8 +529,8 @@ static void WP_FireBlaster( gentity_t *ent, qboolean altFire )
 	if ( altFire )
 	{
 		// add some slop to the alt-fire direction
-		angs[PITCH] += crandom() * BLASTER_SPREAD;
-		angs[YAW]       += crandom() * BLASTER_SPREAD;
+		angs[PITCH] += Q_flrand(-1.0f, 1.0f) * BLASTER_SPREAD;
+		angs[YAW]       += Q_flrand(-1.0f, 1.0f) * BLASTER_SPREAD;
 	}
 
 	AngleVectors( angs, dir, NULL, NULL );
@@ -694,7 +715,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 	int			damage = 0, skip;
 	qboolean	render_impact = qtrue;
 	vec3_t		start, end;
-	vec3_t		muzzle2;
+	//vec3_t		muzzle2;
 	trace_t		tr;
 	gentity_t	*traceEnt, *tent;
 	float		shotRange = 8192.0f;
@@ -705,7 +726,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 
 	damage = DISRUPTOR_ALT_DAMAGE-30;
 
-	VectorCopy( muzzle, muzzle2 ); // making a backup copy
+	//VectorCopy( muzzle, muzzle2 ); // making a backup copy
 
 	if (ent->client)
 	{
@@ -766,9 +787,18 @@ void WP_DisruptorAltFire( gentity_t *ent )
 			trap->Trace( &tr, start, NULL, NULL, end, skip, MASK_SHOT, qfalse, 0, 0 );
 		}
 
-		// fix: shooting ourselves shouldn't be allowed
-		if (tr.entityNum == ent->s.number)
-			break;
+		if ( tr.entityNum == ent->s.number )
+		{
+			// should never happen, but basically we don't want to consider a hit to ourselves?
+			// Get ready for an attempt to trace through another person
+			//VectorCopy( tr.endpos, muzzle2 );
+			VectorCopy( tr.endpos, start );
+			skip = tr.entityNum;
+#ifdef _DEBUG
+			trap->Print( "BAD! Disruptor gun shot somehow traced back and hit the owner!\n" );
+#endif
+			continue;
+		}
 
 		traceEnt = &g_entities[tr.entityNum];
 
@@ -1053,12 +1083,12 @@ static void WP_BowcasterMainFire( gentity_t *ent )
 	for (i = 0; i < count; i++ )
 	{
 		// create a range of different velocities
-		vel = BOWCASTER_VELOCITY * ( crandom() * BOWCASTER_VEL_RANGE + 1.0f );
+		vel = BOWCASTER_VELOCITY * ( Q_flrand(-1.0f, 1.0f) * BOWCASTER_VEL_RANGE + 1.0f );
 
 		vectoangles( forward, angs );
 
 		// add some slop to the alt-fire direction
-		angs[PITCH] += crandom() * BOWCASTER_ALT_SPREAD * 0.2f;
+		angs[PITCH] += Q_flrand(-1.0f, 1.0f) * BOWCASTER_ALT_SPREAD * 0.2f;
 		angs[YAW]	+= ((i+0.5f) * BOWCASTER_ALT_SPREAD - count * 0.5f * BOWCASTER_ALT_SPREAD );
 
 		AngleVectors( angs, dir, NULL, NULL );
@@ -1174,8 +1204,8 @@ static void WP_FireRepeater( gentity_t *ent, qboolean altFire )
 	else
 	{
 		// add some slop to the alt-fire direction
-		angs[PITCH] += crandom() * REPEATER_SPREAD;
-		angs[YAW]	+= crandom() * REPEATER_SPREAD;
+		angs[PITCH] += Q_flrand(-1.0f, 1.0f) * REPEATER_SPREAD;
+		angs[YAW]	+= Q_flrand(-1.0f, 1.0f) * REPEATER_SPREAD;
 
 		AngleVectors( angs, dir, NULL, NULL );
 
@@ -1493,8 +1523,8 @@ static void WP_FlechetteMainFire( gentity_t *ent )
 
 		if (i != 0)
 		{ //do nothing on the first shot, it will hit the crosshairs
-			angs[PITCH] += crandom() * FLECHETTE_SPREAD;
-			angs[YAW]	+= crandom() * FLECHETTE_SPREAD;
+			angs[PITCH] += Q_flrand(-1.0f, 1.0f) * FLECHETTE_SPREAD;
+			angs[YAW]	+= Q_flrand(-1.0f, 1.0f) * FLECHETTE_SPREAD;
 		}
 
 		AngleVectors( angs, fwd, NULL, NULL );
@@ -1613,7 +1643,7 @@ void WP_flechette_alt_blow( gentity_t *ent )
 static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *self )
 //------------------------------------------------------------------------------
 {
-	gentity_t	*missile = CreateMissile( start, fwd, 700 + random() * 700, 1500 + random() * 2000, self, qtrue );
+	gentity_t	*missile = CreateMissile( start, fwd, 700 + Q_flrand(0.0f, 1.0f) * 700, 1500 + Q_flrand(0.0f, 1.0f) * 2000, self, qtrue );
 
 	missile->think = WP_flechette_alt_blow;
 
@@ -1667,8 +1697,8 @@ static void WP_FlechetteAltFire( gentity_t *self )
 	{
 		VectorCopy( angs, dir );
 
-		dir[PITCH] -= random() * 4 + 8; // make it fly upwards
-		dir[YAW] += crandom() * 2;
+		dir[PITCH] -= Q_flrand(0.0f, 1.0f) * 4 + 8; // make it fly upwards
+		dir[YAW] += Q_flrand(-1.0f, 1.0f) * 2;
 		AngleVectors( dir, fwd, NULL, NULL );
 
 		WP_CreateFlechetteBouncyThing( start, fwd, self );
@@ -1831,7 +1861,7 @@ void rocketThink( gentity_t *ent )
 		// add crazy drunkenness
 		for (i = 0; i < 3; i++ )
 		{
-			newdir[i] += crandom() * ent->random * 0.25f;
+			newdir[i] += Q_flrand(-1.0f, 1.0f) * ent->random * 0.25f;
 		}
 
 		// decay the randomness
@@ -2925,7 +2955,7 @@ void BlowDetpacks(gentity_t *ent)
 			{
 				VectorCopy( found->r.currentOrigin, found->s.origin );
 				found->think = DetPackBlow;
-				found->nextthink = level.time + 100 + random() * 200;
+				found->nextthink = level.time + 100 + Q_flrand(0.0f, 1.0f) * 200;
 				G_Sound( found, CHAN_BODY, G_SoundIndex("sound/weapons/detpack/warning.wav") );
 			}
 		}
@@ -3052,7 +3082,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 	int			damage = CONC_ALT_DAMAGE, skip, traces = DISRUPTOR_ALT_TRACES;
 	qboolean	render_impact = qtrue;
 	vec3_t		start, end;
-	vec3_t		muzzle2, dir;
+	vec3_t		/*muzzle2,*/ dir;
 	trace_t		tr;
 	gentity_t	*traceEnt, *tent;
 	float		shotRange = 8192.0f;
@@ -3075,7 +3105,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 	//FIXME: only if on ground?  So no "rocket jump"?  Or: (see next FIXME)
 	//FIXME: instead, set a forced ucmd backmove instead of this sliding
 
-	VectorCopy( muzzle, muzzle2 ); // making a backup copy
+	//VectorCopy( muzzle, muzzle2 ); // making a backup copy
 
 	VectorCopy( muzzle, start );
 	WP_TraceSetStart( ent, start, vec3_origin, vec3_origin );
@@ -3132,7 +3162,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 		{
 			// should never happen, but basically we don't want to consider a hit to ourselves?
 			// Get ready for an attempt to trace through another person
-			VectorCopy( tr.endpos, muzzle2 );
+			//VectorCopy( tr.endpos, muzzle2 );
 			VectorCopy( tr.endpos, start );
 			skip = tr.entityNum;
 #ifdef _DEBUG
@@ -3262,7 +3292,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 			}
 		}
 		// Get ready for an attempt to trace through another person
-		VectorCopy( tr.endpos, muzzle2 );
+		//VectorCopy( tr.endpos, muzzle2 );
 		VectorCopy( tr.endpos, start );
 		skip = tr.entityNum;
 		hitDodged = qfalse;

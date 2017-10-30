@@ -1,5 +1,25 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 // cg_localents.c -- every frame, generate renderer commands for locally
 // processed entities, like smoke puffs, gibs, shells, etc.
@@ -139,10 +159,10 @@ void CG_FragmentBounceMark( localEntity_t *le, trace_t *trace ) {
 
 	if ( le->leMarkType == LEMT_BLOOD ) {
 	//	radius = 16 + (rand()&31);
-	//	CG_ImpactMark( cgs.media.bloodMarkShader, trace->endpos, trace->plane.normal, random()*360, 1,1,1,1, qtrue, radius, qfalse );
+	//	CG_ImpactMark( cgs.media.bloodMarkShader, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qtrue, radius, qfalse );
 	} else if ( le->leMarkType == LEMT_BURN ) {
 	//	radius = 8 + (rand()&15);
-	//	CG_ImpactMark( cgs.media.burnMarkShader, trace->endpos, trace->plane.normal, random()*360, 1,1,1,1, qtrue, radius, qfalse );
+	//	CG_ImpactMark( cgs.media.burnMarkShader, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qtrue, radius, qfalse );
 	}
 
 	// don't allow a fragment to make multiple marks, or they pile up while settling

@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #include "b_local.h"
 
 //static void R5D2_LookAround( void );
@@ -284,7 +306,7 @@ void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 		pain_chance = NPC_GetPainChance( self, damage );
 
 		// Put it in pain
-		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || random() < pain_chance )	// Spin around in pain? Demp2 always does this
+		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || Q_flrand(0.0f, 1.0f) < pain_chance )	// Spin around in pain? Demp2 always does this
 		{
 			// Health is between 0-30 or was hit by a DEMP2 so pop his head
 			if ( !self->s.m_iVehicleNum
@@ -362,7 +384,7 @@ void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 
 		pain_chance = NPC_GetPainChance( self, damage );
 
-		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || random() < pain_chance )	// Spin around in pain? Demp2 always does this
+		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || Q_flrand(0.0f, 1.0f) < pain_chance )	// Spin around in pain? Demp2 always does this
 		{
 			// Health is between 0-30 or was hit by a DEMP2 so pop his head
 			if ( !self->s.m_iVehicleNum
@@ -608,7 +630,7 @@ void NPC_BSDroid_Default( void )
 	else if ( NPCS.NPCInfo->localState == LSTATE_DROP )
 	{
 		NPC_UpdateAngles( qtrue, qtrue );
-		NPCS.ucmd.upmove = crandom() * 64;
+		NPCS.ucmd.upmove = Q_flrand(-1.0f, 1.0f) * 64;
 	}
 	else if ( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
 	{

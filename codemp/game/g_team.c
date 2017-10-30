@@ -1,9 +1,28 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 #include "g_local.h"
 #include "bg_saga.h"
-
 
 typedef struct teamgame_s {
 	float			last_flag_capture;
@@ -322,28 +341,6 @@ void Team_CheckDroppedItem( gentity_t *dropped ) {
 
 /*
 ================
-Team_ForceGesture
-================
-*/
-void Team_ForceGesture(int team) {
-	int i;
-	gentity_t *ent;
-
-	for (i = 0; i < MAX_CLIENTS; i++) {
-		ent = &g_entities[i];
-		if (!ent->inuse)
-			continue;
-		if (!ent->client)
-			continue;
-		if (ent->client->sess.sessionTeam != team)
-			continue;
-		//
-		ent->flags |= FL_FORCE_GESTURE;
-	}
-}
-
-/*
-================
 Team_FragBonuses
 
 Calculate the bonuses for flag defense, flag carrier defense, etc.
@@ -357,7 +354,6 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	gentity_t *ent;
 	int flag_pw, enemy_flag_pw;
 	int otherteam;
-	int tokens;
 	gentity_t *flag, *carrier = NULL;
 	char *c;
 	vec3_t v1, v2;
@@ -382,7 +378,6 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	}
 
 	// did the attacker frag the flag carrier?
-	tokens = 0;
 	if (targ->client->ps.powerups[enemy_flag_pw]) {
 		attacker->client->pers.teamState.lastfraggedcarrier = level.time;
 		AddScore(attacker, targ->r.currentOrigin, CTF_FRAG_CARRIER_BONUS);
@@ -390,24 +385,6 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		//PrintMsg(NULL, "%s" S_COLOR_WHITE " fragged %s's flag carrier!\n",
 		//	attacker->client->pers.netname, TeamName(team));
 		PrintCTFMessage(attacker->s.number, team, CTFMESSAGE_FRAGGED_FLAG_CARRIER);
-
-		// the target had the flag, clear the hurt carrier
-		// field on the other team
-		for (i = 0; i < sv_maxclients.integer; i++) {
-			ent = g_entities + i;
-			if (ent->inuse && ent->client->sess.sessionTeam == otherteam)
-				ent->client->pers.teamState.lasthurtcarrier = 0;
-		}
-		return;
-	}
-
-	// did the attacker frag a head carrier? other->client->ps.generic1
-	if (tokens) {
-		attacker->client->pers.teamState.lastfraggedcarrier = level.time;
-		AddScore(attacker, targ->r.currentOrigin, CTF_FRAG_CARRIER_BONUS * tokens * tokens);
-		attacker->client->pers.teamState.fragcarrier++;
-		//PrintMsg(NULL, "%s" S_COLOR_WHITE " fragged %s's skull carrier!\n",
-		//	attacker->client->pers.netname, TeamName(team));
 
 		// the target had the flag, clear the hurt carrier
 		// field on the other team
@@ -831,8 +808,6 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 
 	// Increase the team's score
 	AddTeamScore(ent->s.pos.trBase, other->client->sess.sessionTeam, 1);
-//	Team_ForceGesture(other->client->sess.sessionTeam);
-	//rww - don't really want to do this now. Mainly because performing a gesture disables your upper torso animations until it's done and you can't fire
 
 	other->client->pers.teamState.captures++;
 	other->client->rewardTime = level.time + REWARD_SPRITE_TIME;

@@ -1,24 +1,33 @@
-// cl_cgame.c  -- client system interaction with client game
-//Anything above this #include will be ignored by the compiler
-#include "qcommon/exe_headers.h"
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-#include "RMG/RM_Headers.h"
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
+// cl_cgame.c  -- client system interaction with client game
 #include "client.h"
 #include "cl_cgameapi.h"
 #include "botlib/botlib.h"
-#include "RMG/RM_Headers.h"
 #include "FXExport.h"
 #include "FxUtil.h"
 #include "qcommon/RoffSystem.h"
-
-#ifdef _DONETPROFILE_
-#include "qcommon/INetProfile.h"
-#endif
-
-/*
-Ghoul2 Insert Start
-*/
-
 #include "qcommon/stringed_ingame.h"
 #include "ghoul2/G2_gore.h"
 
@@ -174,16 +183,6 @@ void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale, float mPitchO
 	cl.cgameForceSelection = fpSel;
 	cl.cgameInvenSelection = invenSel;
 }
-
-/*
-=====================
-CL_CgameError
-=====================
-*/
-void CL_CgameError( const char *string ) {
-	Com_Error( ERR_DROP, "%s", string );
-}
-
 
 int gCLTotalClientNum = 0;
 //keep track of the total number of clients
@@ -501,9 +500,6 @@ void CL_ShutdownCGame( void ) {
 	cls.cgameStarted = qfalse;
 
 	CL_UnbindCGame();
-#ifdef _DONETPROFILE_
-	ClReadProf().ShowTotals();
-#endif
 }
 
 /*
@@ -539,6 +535,11 @@ void CL_InitCGame( void ) {
 	// otherwise server commands sent just before a gamestate are dropped
 	CGVM_Init( clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 
+	int clRate = Cvar_VariableIntegerValue( "rate" );
+	if ( clRate == 4000 ) {
+		Com_Printf( S_COLOR_YELLOW "WARNING: Old default /rate value detected (4000). Suggest typing /rate 25000 into console for a smoother connection!\n" );
+	}
+
 	// reset any CVAR_CHEAT cvars registered by cgame
 	if ( !clc.demoplaying && !cl_connectedToCheatServer )
 		Cvar_SetCheatState();
@@ -563,9 +564,6 @@ void CL_InitCGame( void ) {
 
 	// clear anything that got printed
 	Con_ClearNotify ();
-#ifdef _DONETPROFILE_
-	ClReadProf().Reset();
-#endif
 }
 
 
@@ -704,8 +702,6 @@ void CL_FirstSnapshot( void ) {
 		Cbuf_AddText( cl_activeAction->string );
 		Cvar_Set( "activeAction", "" );
 	}
-
-	Sys_BeginProfiling();
 }
 
 /*

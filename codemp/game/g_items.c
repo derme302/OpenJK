@@ -1,5 +1,26 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #include "g_local.h"
 #include "ghoul2/G2.h"
 #include "qcommon/q_shared.h"
@@ -627,7 +648,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 					G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/chars/turret/startup.wav" ));
 
 					// Wind up turrets for a bit
-					self->attackDebounceTime = level.time + 900 + random() * 200;
+					self->attackDebounceTime = level.time + 900 + Q_flrand(0.0f, 1.0f) * 200;
 				}
 
 				G_SetEnemy( self, target );
@@ -681,7 +702,7 @@ void pas_adjust_enemy( gentity_t *ent )
 
 	if ( keep )
 	{
-		//ent->bounceCount = level.time + 500 + random() * 150;
+		//ent->bounceCount = level.time + 500 + Q_flrand(0.0f, 1.0f) * 150;
 	}
 	else if ( ent->bounceCount < level.time && ent->enemy ) // don't ping pong on and off
 	{
@@ -689,7 +710,7 @@ void pas_adjust_enemy( gentity_t *ent )
 		// shut-down sound
 		G_Sound( ent, CHAN_BODY, G_SoundIndex( "sound/chars/turret/shutdown.wav" ));
 
-		ent->bounceCount = level.time + 500 + random() * 150;
+		ent->bounceCount = level.time + 500 + Q_flrand(0.0f, 1.0f) * 150;
 
 		// make turret play ping sound for 5 seconds
 		ent->aimDebounceTime = level.time + 5000;
@@ -2612,7 +2633,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 	// random can be used to vary the respawn time
 	if ( ent->random ) {
-		respawn += crandom() * ent->random;
+		respawn += Q_flrand(-1.0f, 1.0f) * ent->random;
 		if ( respawn < 1 ) {
 			respawn = 1;
 		}
@@ -2763,7 +2784,7 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
 
 	AngleVectors( angles, velocity, NULL, NULL );
 	VectorScale( velocity, 150, velocity );
-	velocity[2] += 200 + crandom() * 50;
+	velocity[2] += 200 + Q_flrand(-1.0f, 1.0f) * 50;
 
 	return LaunchItem( item, ent->s.pos.trBase, velocity );
 }
@@ -2964,7 +2985,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	if ( ent->item->giType == IT_POWERUP ) {
 		float	respawn;
 
-		respawn = 45 + crandom() * 15;
+		respawn = 45 + Q_flrand(-1.0f, 1.0f) * 15;
 		ent->s.eFlags |= EF_NODRAW;
 		ent->r.contents = 0;
 		ent->nextthink = level.time + respawn * 1000;

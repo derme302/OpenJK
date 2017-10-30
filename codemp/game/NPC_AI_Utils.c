@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // These utilities are meant for strictly non-player, non-team NPCs.
 // These functions are in their own file because they are only intended
 // for use with NPCs who's logic has been overriden from the original
@@ -73,39 +95,6 @@ int AI_GetGroupSize2( gentity_t *ent, int radius )
 		return -1;
 
 	return AI_GetGroupSize( ent->r.currentOrigin, radius, (team_t)ent->client->playerTeam, ent );
-}
-
-extern int NAV_FindClosestWaypointForPoint( gentity_t *ent, vec3_t point );
-int AI_ClosestGroupEntityNumToPoint( AIGroupInfo_t *group, vec3_t point )
-{
-	int	markerWP = WAYPOINT_NONE;
-	int	cost, bestCost = Q3_INFINITE;
-	int	closest = ENTITYNUM_NONE;
-	int i;
-
-	if ( group == NULL || group->numGroup <= 0 )
-	{
-		return ENTITYNUM_NONE;
-	}
-
-	markerWP = NAV_FindClosestWaypointForPoint( &g_entities[group->member[0].number], point );
-
-	if ( markerWP == WAYPOINT_NONE )
-	{
-		return ENTITYNUM_NONE;
-	}
-
-	for ( i = 0; i < group->numGroup; i++ )
-	{
-		cost = trap->Nav_GetPathCost( group->member[i].waypoint, markerWP );
-		if ( cost < bestCost )
-		{
-			bestCost = cost;
-			closest = group->member[i].number;
-		}
-	}
-
-	return closest;
 }
 
 void AI_SetClosestBuddy( AIGroupInfo_t *group )

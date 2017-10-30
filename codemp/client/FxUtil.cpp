@@ -1,6 +1,25 @@
-//Anything above this #include will be ignored by the compiler
-#include "qcommon/exe_headers.h"
-// this include must remain at the top of every CPP file
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #include "client.h"
 #include "FxScheduler.h"
 
@@ -91,8 +110,8 @@ int	FX_Init( refdef_t* refdef )
 	fx_freeze = Cvar_Get("fx_freeze", "0", CVAR_CHEAT);
 #endif
 	fx_debug = Cvar_Get("fx_debug", "0", CVAR_TEMP);
-	fx_countScale = Cvar_Get("fx_countScale", "1", CVAR_ARCHIVE);
-	fx_nearCull = Cvar_Get("fx_nearCull", "16", CVAR_ARCHIVE);
+	fx_countScale = Cvar_Get("fx_countScale", "1", CVAR_ARCHIVE_ND);
+	fx_nearCull = Cvar_Get("fx_nearCull", "16", CVAR_ARCHIVE_ND);
 
 	theFxHelper.ReInit(refdef);
 
@@ -1018,7 +1037,7 @@ CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 		for ( int i = 0; i < numVerts; i++ )
 		{
 			VectorCopy( verts[i], fx->mOrg[i] );
-			Vector2Copy( st[i], fx->mST[i] );
+			VectorCopy2( st[i], fx->mST[i] );
 		}
 
 		fx->SetVel( vel );

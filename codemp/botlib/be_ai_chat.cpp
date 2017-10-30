@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 /*****************************************************************************
  * name:		be_ai_chat.c
@@ -787,7 +809,7 @@ void BotReplaceWeightedSynonyms(char *string, unsigned long int context)
 	{
 		if (!(syn->context & context)) continue;
 		//choose a weighted random replacement synonym
-		weight = random() * syn->totalweight;
+		weight = Q_flrand(0.0f, 1.0f) * syn->totalweight;
 		if (!weight) continue;
 		curweight = 0;
 		for (replacement = syn->firstsynonym; replacement; replacement = replacement->next)
@@ -1059,7 +1081,7 @@ char *RandomString(char *name)
 	{
 		if (!strcmp(random->string, name))
 		{
-			i = random() * random->numstrings;
+			i = Q_flrand(0.0f, 1.0f) * random->numstrings;
 			for (rs = random->firstrandomstring; rs; rs = rs->next)
 			{
 				if (--i < 0) break;
@@ -2447,7 +2469,7 @@ char *BotChooseInitialChatMessage(bot_chatstate_t *cs, char *type)
 			} //end if
 			else //choose a chat message randomly
 			{
-				n = random() * numchatmessages;
+				n = Q_flrand(0.0f, 1.0f) * numchatmessages;
 				for (m = t->firstchatmessage; m; m = m->next)
 				{
 					if (m->time > AAS_Time()) continue;
@@ -2683,7 +2705,7 @@ int BotReplyChat(int chatstate, char *message, int mcontext, int vcontext, char 
 					if (m->time > AAS_Time()) continue;
 					numchatmessages++;
 				} //end if
-				num = random() * numchatmessages;
+				num = Q_flrand(0.0f, 1.0f) * numchatmessages;
 				for (m = rchat->firstchatmessage; m; m = m->next)
 				{
 					if (--num < 0) break;

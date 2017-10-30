@@ -1,3 +1,26 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // tr_surf.c
 #include "tr_local.h"
 
@@ -25,16 +48,10 @@ RB_CheckOverflow
 ==============
 */
 void RB_CheckOverflow( int verts, int indexes ) {
-	if ( tess.shader == tr.shadowShader ) {
-		if (tess.numVertexes + verts < SHADER_MAX_VERTEXES/2
-			&& tess.numIndexes + indexes < SHADER_MAX_INDEXES) {
-			return;
-		}
-	} else
-		if (tess.numVertexes + verts < SHADER_MAX_VERTEXES
-			&& tess.numIndexes + indexes < SHADER_MAX_INDEXES) {
-			return;
-		}
+	if (tess.numVertexes + verts < SHADER_MAX_VERTEXES
+		&& tess.numIndexes + indexes < SHADER_MAX_INDEXES) {
+		return;
+	}
 
 	RB_EndSurface();
 
@@ -110,11 +127,15 @@ void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, flo
 
 	// constant color all the way around
 	// should this be identity and let the shader specify from entity?
-	* ( unsigned int * ) &tess.vertexColors[ndx] =
-	* ( unsigned int * ) &tess.vertexColors[ndx+1] =
-	* ( unsigned int * ) &tess.vertexColors[ndx+2] =
-	* ( unsigned int * ) &tess.vertexColors[ndx+3] =
-		* ( unsigned int * )color;
+	byteAlias_t *baSource = (byteAlias_t *)color, *baDest;
+	baDest = (byteAlias_t *)&tess.vertexColors[ndx + 0];
+	baDest->ui = baSource->ui;
+	baDest = (byteAlias_t *)&tess.vertexColors[ndx + 1];
+	baDest->ui = baSource->ui;
+	baDest = (byteAlias_t *)&tess.vertexColors[ndx + 2];
+	baDest->ui = baSource->ui;
+	baDest = (byteAlias_t *)&tess.vertexColors[ndx + 3];
+	baDest->ui = baSource->ui;
 
 
 	tess.numVertexes += 4;
@@ -233,9 +254,9 @@ void RB_SurfacePolychain( srfPoly_t *p ) {
 		VectorCopy( p->verts[i].xyz, tess.xyz[numv] );
 		tess.texCoords[numv][0][0] = p->verts[i].st[0];
 		tess.texCoords[numv][0][1] = p->verts[i].st[1];
-		*(int *)&tess.vertexColors[numv] = *(int *)p->verts[ i ].modulate;
-
-		numv++;
+		byteAlias_t *baDest = (byteAlias_t *)&tess.vertexColors[numv++],
+			*baSource = (byteAlias_t *)&p->verts[ i ].modulate;
+		baDest->i = baSource->i;
 	}
 
 	// generate fan indexes into the tess array
@@ -458,14 +479,14 @@ static void RB_SurfaceSaberGlow()
 	{
 		VectorMA( e->origin, i, e->axis[0], end );
 
-		DoSprite( end, e->radius, 0.0f );//random() * 360.0f );
+		DoSprite( end, e->radius, 0.0f );//Q_flrand(0.0f, 1.0f) * 360.0f );
 		e->radius += 0.017f;
 	}
 
 	// Big hilt sprite
 	// Please don't kill me Pat...I liked the hilt glow blob, but wanted a subtle pulse.:)  Feel free to ditch it if you don't like it.  --Jeff
 	// Please don't kill me Jeff...  The pulse is good, but now I want the halo bigger if the saber is shorter...  --Pat
-	DoSprite( e->origin, 5.5f + random() * 0.25f, 0.0f );//random() * 360.0f );
+	DoSprite( e->origin, 5.5f + Q_flrand(0.0f, 1.0f) * 0.25f, 0.0f );//Q_flrand(0.0f, 1.0f) * 360.0f );
 }
 
 /*
@@ -865,14 +886,14 @@ static float Q_crandom( int *seed ) {
 static void CreateShape()
 //----------------------------------------------------------------------------
 {
-	VectorSet( sh1, 0.66f + crandom() * 0.1f,	// fwd
-				0.07f + crandom() * 0.025f,
-				0.07f + crandom() * 0.025f );
+	VectorSet( sh1, 0.66f + Q_flrand(-1.0f, 1.0f) * 0.1f,	// fwd
+				0.07f + Q_flrand(-1.0f, 1.0f) * 0.025f,
+				0.07f + Q_flrand(-1.0f, 1.0f) * 0.025f );
 
 	// it seems to look best to have a point on one side of the ideal line, then the other point on the other side.
-	VectorSet( sh2, 0.33f + crandom() * 0.1f,	// fwd
-					-sh1[1] + crandom() * 0.02f,	// forcing point to be on the opposite side of the line -- right
-					-sh1[2] + crandom() * 0.02f );// up
+	VectorSet( sh2, 0.33f + Q_flrand(-1.0f, 1.0f) * 0.1f,	// fwd
+					-sh1[1] + Q_flrand(-1.0f, 1.0f) * 0.02f,	// forcing point to be on the opposite side of the line -- right
+					-sh1[2] + Q_flrand(-1.0f, 1.0f) * 0.02f );// up
 }
 
 //----------------------------------------------------------------------------
@@ -1757,7 +1778,6 @@ void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])( void *) = {
 	(void(*)(void*))RB_SurfaceGrid,			// SF_GRID,
 	(void(*)(void*))RB_SurfaceTriangles,	// SF_TRIANGLES,
 	(void(*)(void*))RB_SurfacePolychain,	// SF_POLY,
-	(void(*)(void*))RB_SurfaceTerrain,		// SF_TERRAIN, //rwwRMG - added
 	(void(*)(void*))RB_SurfaceMesh,			// SF_MD3,
 /*
 Ghoul2 Insert Start

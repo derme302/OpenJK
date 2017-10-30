@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // DEMP2 Weapon
 
 #include "cg_local.h"
@@ -66,7 +88,7 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //qboolean spark
 	VectorMA( start, 0.6666f * len, dir, c2 );
 
 	// get some chaos values that really aren't very chaotic :)
-	s1 = sin( cg.time * 0.005f ) * 2 + crandom() * 0.2f;
+	s1 = sin( cg.time * 0.005f ) * 2 + Q_flrand(-1.0f, 1.0f) * 0.2f;
 	s2 = sin( cg.time * 0.001f );
 	s3 = sin( cg.time * 0.011f );
 
@@ -100,10 +122,10 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //qboolean spark
 						chaos, chaos, 0.0f,
 						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), FX_ALPHA_LINEAR );
 
-	s1 = sin( cg.time * 0.0005f ) + crandom() * 0.1f;
+	s1 = sin( cg.time * 0.0005f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
 	s2 = sin( cg.time * 0.0025f );
 	float cc2 = cos( cg.time * 0.0025f );
-	s3 = sin( cg.time * 0.01f ) + crandom() * 0.1f;
+	s3 = sin( cg.time * 0.01f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
 
 	VectorSet( chaos, len * 0.08f * s2,
 						len * 0.04f * cc2,//s1 * -s3,
@@ -138,14 +160,14 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //qboolean spark
 
 	VectorMA( start, 14.0f, dir, c1 );
 
-	FX_AddSprite( c1, NULL, NULL, 12.0f + crandom() * 4, 0.0f, 1.0f, 1.0f, random() * 360, 0.0f, 1.0f,
+	FX_AddSprite( c1, NULL, NULL, 12.0f + Q_flrand(-1.0f, 1.0f) * 4, 0.0f, 1.0f, 1.0f, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 1.0f,
 						trap->R_RegisterShader( "gfx/misc/lightningFlash" ));
-	FX_AddSprite( c1, NULL, NULL, 6.0f + crandom() * 2, 0.0f, 1.0f, 1.0f, random() * 360, 0.0f, 1.0f,
+	FX_AddSprite( c1, NULL, NULL, 6.0f + Q_flrand(-1.0f, 1.0f) * 2, 0.0f, 1.0f, 1.0f, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 1.0f,
 						trap->R_RegisterShader( "gfx/misc/lightningFlash" ));
 
-	FX_AddSprite( targ1, NULL, NULL, 4.0f + crandom(), 0.0f, 1.0f, 0.0f, chaos, chaos, random() * 360, 0.0f, 10,
+	FX_AddSprite( targ1, NULL, NULL, 4.0f + Q_flrand(-1.0f, 1.0f), 0.0f, 1.0f, 0.0f, chaos, chaos, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 10,
 						trap->R_RegisterShader( "gfx/misc/lightningFlash" ));
-	FX_AddSprite( targ1, NULL, NULL, 8.0f + crandom() * 2, 0.0f, 1.0f, 0.0f, chaos, chaos, random() * 360, 0.0f, 10,
+	FX_AddSprite( targ1, NULL, NULL, 8.0f + Q_flrand(-1.0f, 1.0f) * 2, 0.0f, 1.0f, 0.0f, chaos, chaos, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 10,
 						trap->R_RegisterShader( "gfx/misc/lightningFlash" ));
 
 
@@ -159,7 +181,7 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //qboolean spark
 	VectorMA( targ1, 0.6666f * len, dir, c2 );
 
 	// get some chaos values that really aren't very chaotic :)
-	s1 = sin( cg.time * 0.005f ) * 2 + crandom() * 0.2f;
+	s1 = sin( cg.time * 0.005f ) * 2 + Q_flrand(-1.0f, 1.0f) * 0.2f;
 	s2 = sin( cg.time * 0.001f );
 	s3 = sin( cg.time * 0.011f );
 
@@ -193,10 +215,10 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //qboolean spark
 						chaos, chaos, 0.0f,
 						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), FX_ALPHA_LINEAR );
 
-	s1 = sin( cg.time * 0.0005f ) + crandom() * 0.1f;
+	s1 = sin( cg.time * 0.0005f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
 	s2 = sin( cg.time * 0.0025f );
 	cc2 = cos( cg.time * 0.0025f );
-	s3 = sin( cg.time * 0.01f ) + crandom() * 0.1f;
+	s3 = sin( cg.time * 0.01f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
 
 	VectorSet( chaos, len * 0.08f * s2,
 						len * 0.04f * cc2,//s1 * -s3,
@@ -229,9 +251,9 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //qboolean spark
 						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), FX_ALPHA_LINEAR );
 
 
-	FX_AddSprite( targ2, NULL, NULL, 4.0f + crandom(), 0.0f, 1.0f, 0.0f, chaos, chaos, random() * 360, 0.0f, 10,
+	FX_AddSprite( targ2, NULL, NULL, 4.0f + Q_flrand(-1.0f, 1.0f), 0.0f, 1.0f, 0.0f, chaos, chaos, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 10,
 						trap->R_RegisterShader( "gfx/misc/lightningFlash" ));
-	FX_AddSprite( targ2, NULL, NULL, 8.0f + crandom() * 2, 0.0f, 1.0f, 0.0f, chaos, chaos, random() * 360, 0.0f, 10,
+	FX_AddSprite( targ2, NULL, NULL, 8.0f + Q_flrand(-1.0f, 1.0f) * 2, 0.0f, 1.0f, 0.0f, chaos, chaos, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 10,
 						trap->R_RegisterShader( "gfx/misc/lightningFlash" ));
 */
 }

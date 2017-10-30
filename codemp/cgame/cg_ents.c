@@ -1,5 +1,27 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2005 - 2015, ioquake3 contributors
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // cg_ents.c -- present snapshot entities, happens every single frame
 
 #include "cg_local.h"
@@ -323,7 +345,7 @@ static void CG_EntityEffects( centity_t *cent ) {
 
 
 	// constant light glow
-	if ( cent->currentState.constantLight && cent->currentState.eType != ET_PLAYER && cent->currentState.eType != ET_BODY && cent->currentState.eType != ET_NPC ) {
+	if ( cent->currentState.constantLight && cent->currentState.eType != ET_PLAYER && cent->currentState.eType != ET_BODY && cent->currentState.eType != ET_NPC && cent->currentState.eType != ET_INVISIBLE ) {
 		int		cl;
 		float	i, r, g, b;
 
@@ -683,7 +705,7 @@ void CG_Disintegration(centity_t *cent, refEntity_t *ent)
 	ent->customShader = 0;
 	trap->R_AddRefEntityToScene( ent );
 
-	if ( cg.time - ent->endTime < 1000 && (timescale.value * timescale.value * random()) > 0.05f )
+	if ( cg.time - ent->endTime < 1000 && (timescale.value * timescale.value * Q_flrand(0.0f, 1.0f)) > 0.05f )
 	{
 		vec3_t fxOrg, fxDir;
 		mdxaBone_t	boltMatrix;
@@ -696,10 +718,10 @@ void CG_Disintegration(centity_t *cent, refEntity_t *ent)
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, fxOrg );
 
 		VectorMA( fxOrg, -18, cg.refdef.viewaxis[0], fxOrg );
-		fxOrg[2] += crandom() * 20;
+		fxOrg[2] += Q_flrand(-1.0f, 1.0f) * 20;
 		trap->FX_PlayEffectID( cgs.effects.mDisruptorDeathSmoke, fxOrg, fxDir, -1, -1, qfalse );
 
-		if ( random() > 0.5f )
+		if ( Q_flrand(0.0f, 1.0f) > 0.5f )
 		{
 			trap->FX_PlayEffectID( cgs.effects.mDisruptorDeathSmoke, fxOrg, fxDir, -1, -1, qfalse );
 		}
@@ -1477,7 +1499,7 @@ Ghoul2 Insert End
 	{
 		if (cent->bodyFadeTime > cg.time)
 		{
-			qboolean lightSide = cent->teamPowerType;
+			qboolean lightSide = (cent->teamPowerType != 0) ? qtrue : qfalse;
 			vec3_t hitLoc, tempAng;
 			float tempLength;
 			int curTimeDif = ((cg.time + 60000) - cent->bodyFadeTime);
@@ -1589,7 +1611,7 @@ Ghoul2 Insert End
 					{
 						ent.customShader = cgs.media.electricBody2Shader;
 					}
-					if ( random() > 0.9f )
+					if ( Q_flrand(0.0f, 1.0f) > 0.9f )
 					{
 						trap->S_StartSound ( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.crackleSound );
 					}
@@ -1832,7 +1854,7 @@ static void CG_Speaker( centity_t *cent ) {
 
 	//	ent->s.frame = ent->wait * 10;
 	//	ent->s.clientNum = ent->random * 10;
-	cent->miscTime = cg.time + cent->currentState.frame * 100 + cent->currentState.clientNum * 100 * crandom();
+	cent->miscTime = cg.time + cent->currentState.frame * 100 + cent->currentState.clientNum * 100 * Q_flrand(-1.0f, 1.0f);
 }
 
 qboolean CG_GreyItem(int type, int tag, int plSide)
@@ -3217,7 +3239,7 @@ static void CG_FX( centity_t *cent )
 		cent->muzzleFlashTime = s1->modelindex2;
 	}
 
-	cent->miscTime = cg.time + s1->speed + random() * s1->time;
+	cent->miscTime = cg.time + s1->speed + Q_flrand(0.0f, 1.0f) * s1->time;
 
 	AngleVectors(s1->angles, fxDir, 0, 0);
 
@@ -3300,7 +3322,7 @@ Ghoul2 Insert Start
 */
 
 	// add local sound set if any
-	if ( cent->currentState.soundSetIndex && cent->currentState.eType != ET_MOVER && (!cg_noFXSoundSets.integer || cent->currentState.eType != ET_FX ) )
+	if ( cent->currentState.soundSetIndex && cent->currentState.eType != ET_MOVER )
 	{
 		const char *soundSet = CG_ConfigString( CS_AMBIENT_SET + cent->currentState.soundSetIndex );
 

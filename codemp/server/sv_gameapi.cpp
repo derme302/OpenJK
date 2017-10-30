@@ -1,3 +1,23 @@
+/*
+===========================================================================
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // sv_gameapi.cpp  -- interface to the game dll
 //Anything above this #include will be ignored by the compiler
 
@@ -6,8 +26,6 @@
 #include "qcommon/stringed_ingame.h"
 #include "qcommon/RoffSystem.h"
 #include "ghoul2/ghoul2_shared.h"
-#include "RMG/RM_Headers.h"
-#include "qcommon/cm_local.h"
 #include "qcommon/cm_public.h"
 #include "icarus/GameInterface.h"
 #include "qcommon/timing.h"
@@ -91,7 +109,7 @@ void GVM_ClientCommand( int clientNum ) {
 
 void GVM_ClientThink( int clientNum, usercmd_t *ucmd ) {
 	if ( gvm->isLegacy ) {
-		VM_Call( gvm, GAME_CLIENT_THINK, clientNum, ucmd );
+		VM_Call( gvm, GAME_CLIENT_THINK, clientNum, reinterpret_cast< intptr_t >( ucmd ) );
 		return;
 	}
 	VMSwap v( gvm );
@@ -127,7 +145,7 @@ int GVM_BotAIStartFrame( int time ) {
 
 void GVM_ROFF_NotetrackCallback( int entID, const char *notetrack ) {
 	if ( gvm->isLegacy ) {
-		VM_Call( gvm, GAME_ROFF_NOTETRACK_CALLBACK, entID, notetrack );
+		VM_Call( gvm, GAME_ROFF_NOTETRACK_CALLBACK, entID, reinterpret_cast< intptr_t >( notetrack ) );
 		return;
 	}
 	VMSwap v( gvm );
@@ -303,7 +321,7 @@ int GVM_ICARUS_GetSetIDForString( void ) {
 
 qboolean GVM_NAV_ClearPathToPoint( int entID, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEnt ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_NAV_CLEARPATHTOPOINT, entID, pmins, pmaxs, point, clipmask, okToHitEnt );
+		return (qboolean)VM_Call( gvm, GAME_NAV_CLEARPATHTOPOINT, entID, reinterpret_cast< intptr_t >( pmins ), reinterpret_cast< intptr_t >( pmaxs ), reinterpret_cast< intptr_t >( point ), clipmask, okToHitEnt );
 	VMSwap v( gvm );
 
 	return ge->NAV_ClearPathToPoint( entID, pmins, pmaxs, point, clipmask, okToHitEnt );
@@ -311,7 +329,7 @@ qboolean GVM_NAV_ClearPathToPoint( int entID, vec3_t pmins, vec3_t pmaxs, vec3_t
 
 qboolean GVM_NPC_ClearLOS2( int entID, const vec3_t end ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_NAV_CLEARLOS, entID, end );
+		return (qboolean)VM_Call( gvm, GAME_NAV_CLEARLOS, entID, reinterpret_cast< intptr_t >( end ) );
 	VMSwap v( gvm );
 
 	return ge->NPC_ClearLOS2( entID, end );
@@ -319,7 +337,7 @@ qboolean GVM_NPC_ClearLOS2( int entID, const vec3_t end ) {
 
 int GVM_NAVNEW_ClearPathBetweenPoints( vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask ) {
 	if ( gvm->isLegacy )
-		return VM_Call( gvm, GAME_NAV_CLEARPATHBETWEENPOINTS, start, end, mins, maxs, ignore, clipmask );
+		return VM_Call( gvm, GAME_NAV_CLEARPATHBETWEENPOINTS, reinterpret_cast< intptr_t >( start ), reinterpret_cast< intptr_t >( end ), reinterpret_cast< intptr_t >( mins ), reinterpret_cast< intptr_t >( maxs ), ignore, clipmask );
 	VMSwap v( gvm );
 
 	return ge->NAVNEW_ClearPathBetweenPoints( start, end, mins, maxs, ignore, clipmask );
@@ -476,15 +494,7 @@ static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 		VectorCopy (mins, ent->r.mins);
 		VectorCopy (maxs, ent->r.maxs);
 		ent->r.bmodel = qtrue;
-
-		if (com_RMG && com_RMG->integer)
-		{
-			ent->r.contents = CM_ModelContents( h, sv.mLocalSubBSPIndex );
-		}
-		else
-		{
-			ent->r.contents = CM_ModelContents( h, -1 );
-		}
+		ent->r.contents = CM_ModelContents( h, -1 );
 	}
 	else if (name[0] == '#')
 	{
@@ -1442,21 +1452,10 @@ static qhandle_t SV_RE_RegisterSkin( const char *name ) {
 }
 
 static int SV_CM_RegisterTerrain( const char *config ) {
-	return CM_RegisterTerrain( config, true )->GetTerrainId();
+	return 0;
 }
 
-static void SV_RMG_Init( void ) {
-	if ( com_RMG && com_RMG->integer ) {
-		if ( !TheRandomMissionManager )
-			TheRandomMissionManager = new CRMManager;
-
-		TheRandomMissionManager->SetLandScape( cmg.landScape );
-
-		if ( TheRandomMissionManager->LoadMission( qtrue ) )
-			TheRandomMissionManager->SpawnMission( qtrue );
-	//	cmg.landScape->UpdatePatches();
-	}
-}
+static void SV_RMG_Init( void ) { }
 
 static void SV_G2API_ListModelSurfaces( void *ghlInfo ) {
 	re->G2API_ListSurfaces( (CGhoul2Info *)ghlInfo );
@@ -1530,8 +1529,12 @@ static qboolean SV_G2API_GetBoneAnim( void *ghoul2, const char *boneName, const 
 }
 
 static void SV_G2API_GetGLAName( void *ghoul2, int modelIndex, char *fillBuf ) {
+	assert( ghoul2 && "invalid g2 handle" );
+
 	char *tmp = re->G2API_GetGLAName( *((CGhoul2Info_v *)ghoul2), modelIndex );
-	strcpy( fillBuf, tmp );
+	if ( tmp ) {
+		strcpy( fillBuf, tmp );
+	}
 }
 
 static int SV_G2API_CopyGhoul2Instance( void *g2From, void *g2To, int modelIndex ) {
@@ -2842,11 +2845,10 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return 0;
 
 	case G_RMG_INIT:
-		SV_RMG_Init();
 		return 0;
 
 	case G_CM_REGISTER_TERRAIN:
-		return CM_RegisterTerrain((const char *)VMA(1), true)->GetTerrainId();
+		return 0;
 
 	case G_BOT_UPDATEWAYPOINTS:
 		SV_BotWaypointReception(args[1], (wpobject_t **)VMA(2));
@@ -2880,7 +2882,7 @@ void SV_BindGame( void ) {
 	static gameImport_t gi;
 	gameExport_t		*ret;
 	GetGameAPI_t		GetGameAPI;
-	char				dllName[MAX_OSPATH] = "jampgame"ARCH_STRING DLL_EXT;
+	char				dllName[MAX_OSPATH] = "jampgame" ARCH_STRING DLL_EXT;
 
 	memset( &gi, 0, sizeof( gi ) );
 

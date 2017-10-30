@@ -1,20 +1,35 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // Task Manager
 //
 //	-- jweier
 
-//Anything above this #include will be ignored by the compiler
-#include "qcommon/exe_headers.h"
-
-// this include must remain at the top of every Icarus CPP file
 #include "icarus.h"
 
-
-
 #include <assert.h>
+#include "server/server.h"
 
 #define ICARUS_VALIDATE(a) if ( a == false ) return TASK_FAILED;
-
-#include "server/server.h"
 
 /*
 =================================================
@@ -392,7 +407,7 @@ int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &val
 		return (m_owner->GetInterface())->I_GetFloat( entID, type, name, &value );
 	}
 
-	//Look for a random() inline call
+	//Look for a Q_flrand(0.0f, 1.0f) inline call
 	if ( Check( ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max;
@@ -464,7 +479,7 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vector_t 
 		return (m_owner->GetInterface())->I_GetVector( entID, type, name, value );
 	}
 
-	//Look for a random() inline call
+	//Look for a Q_flrand(0.0f, 1.0f) inline call
 	if ( Check( ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max;
@@ -602,7 +617,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, char **value )
 		}
 	}
 
-	//Look for a random() inline call
+	//Look for a Q_flrand(0.0f, 1.0f) inline call
 	if ( Check( ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max, ret;
@@ -670,10 +685,10 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, char **value )
 		{
 			if ( GetFloat( entID, block, memberNum, vval[i] ) == false )
 				return false;
-
-			Com_sprintf( tempBuffer, sizeof(tempBuffer), "%f %f %f", vval[0], vval[1], vval[2] );
-			*value = (char *) tempBuffer;
 		}
+
+		Com_sprintf( tempBuffer, sizeof(tempBuffer), "%f %f %f", vval[0], vval[1], vval[2] );
+		*value = (char *) tempBuffer;
 
 		return true;
 	}

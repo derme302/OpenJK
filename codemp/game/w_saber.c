@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #include "g_local.h"
 #include "bg_local.h"
 #include "w_saber.h"
@@ -5216,15 +5238,6 @@ blockStuff:
 	return didHit;
 }
 
-QINLINE int VectorCompare2( const vec3_t v1, const vec3_t v2 ) {
-	if ( v1[0] > v2[0]+0.0001f || v1[0] < v2[0]-0.0001f
-		|| v1[1] > v2[1]+0.0001f || v1[1] < v2[1]-0.0001f
-		|| v1[2] > v2[2]+0.0001f || v1[2] < v2[2]-0.0001f ) {
-		return 0;
-	}
-	return 1;
-}
-
 #define MAX_SABER_SWING_INC 0.33f
 void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, vec3_t baseNew, vec3_t endNew, int clipmask )
 {
@@ -5838,7 +5851,12 @@ static QINLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *
 	float veclen;
 	gentity_t *te;
 
-	if (saberOwner && saberOwner->client && saberOwner->client->ps.saberAttackWound > level.time)
+	if (!saberOwner || !saberOwner->client)
+	{
+		return qfalse;
+	}
+
+	if (saberOwner->client->ps.saberAttackWound > level.time)
 	{
 		return qfalse;
 	}

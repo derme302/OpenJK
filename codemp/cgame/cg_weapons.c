@@ -1,5 +1,26 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // cg_weapons.c -- events and effects dealing with weapons
 #include "cg_local.h"
 #include "fx_local.h"
@@ -635,7 +656,7 @@ Ghoul2 Insert End
 			}
 		}
 
-		val += random() * 0.5f;
+		val += Q_flrand(0.0f, 1.0f) * 0.5f;
 
 		VectorCopy(flashorigin, fxSArgs.origin);
 		VectorClear(fxSArgs.vel);
@@ -644,13 +665,13 @@ Ghoul2 Insert End
 		fxSArgs.dscale = 0.0f;
 		fxSArgs.sAlpha = 0.7f;
 		fxSArgs.eAlpha = 0.7f;
-		fxSArgs.rotation = random()*360;
+		fxSArgs.rotation = Q_flrand(0.0f, 1.0f)*360;
 		fxSArgs.bounce = 0.0f;
 		fxSArgs.life = 1.0f;
 		fxSArgs.shader = shader;
 		fxSArgs.flags = 0x08000000;
 
-		//FX_AddSprite( flash.origin, NULL, NULL, 3.0f * val, 0.0f, 0.7f, 0.7f, WHITE, WHITE, random() * 360, 0.0f, 1.0f, shader, FX_USE_ALPHA );
+		//FX_AddSprite( flash.origin, NULL, NULL, 3.0f * val, 0.0f, 0.7f, 0.7f, WHITE, WHITE, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 1.0f, shader, FX_USE_ALPHA );
 		trap->FX_AddSprite(&fxSArgs);
 	}
 
